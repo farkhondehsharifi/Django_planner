@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            {% block title %}
+                Planner
+            {% endblock %}
+        </title>
+        <link rel="stylesheet" href='{% static "reminders/style.css" %}'>
+    </head>
+<body>
+    <nav>Planner</nav>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer>
+        My Planner
+    </footer>
+</body>
+</html>

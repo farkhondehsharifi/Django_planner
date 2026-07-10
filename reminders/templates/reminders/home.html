@@ -1,10 +1,18 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Planner</title>
-    </head>
-<body>
-    <h1>Welcome to Planner.</h1>
-    <p>Your reminders will appear here</p>
-</body>
-</html>
+{% extends "reminders/base.html" %}
+
+        {% block title %}
+            Home
+        {% endblock %}
+
+        {% block content %}
+            <h1>Welcome to Planner.</h1>
+            {% for reminder in reminders%}
+                <div>
+                    <h3>{{ reminder.title }}</h3>
+                    <p> {{ reminder.date}} {{ reminder.time }}</p>
+                </div>
+                <hr>
+            {% empty %}
+                <p> No reminders yet</p>
+            {% endfor %}
+        {% endblock %}
