@@ -1,11 +1,11 @@
-{% extends "reminders/base.html" %}
+{% extends "base.html" %}
 
         {% block title %}
             Home
         {% endblock %}
 
         {% block content %}
-            <h1>Welcome to Planner.</h1>
+            <h1>Reminders:</h1>
             {% for reminder in reminders%}
                 <div>
                     <h3>{{ reminder.title }}</h3>
@@ -15,4 +15,8 @@
             {% empty %}
                 <p> No reminders yet</p>
             {% endfor %}
+        {% endblock %}
+
+        {% block footer %}
+            Total reminders: {{ reminders.count }}
         {% endblock %}
