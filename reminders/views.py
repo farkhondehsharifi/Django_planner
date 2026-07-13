@@ -2,38 +2,51 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import ReminderForm
 from .models import Reminder
-from django.views.generic import UpdateView, DeleteView, DetailView
+from django.views.generic import UpdateView, DeleteView, DetailView, CreateView, ListView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+from .mixins import UserReminderMixin
+from django.db.models import Q
+from django.utils import timezone
 
 
-@login_required
-def home(request):
-    # return  HttpResponse("Welcome to Planner.")
-    reminders = request.user.reminders.all()
-    return render(request, 
-                  "reminders/home.html",
-                  { "reminders": reminders }
-                  )
+class ReminderListView(LoginRequiredMixin, ListView):
+    model = Reminder
+    template_name = "reminders/home.html"
+    context_object_name = 'reminders'
+    paginate_by = 2
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(user=self.request.user)
+        status = self.request.GET.get('status')
+        now = timezone.now()
+        today = now.date()
+        current_time = now.time()
+        if status == 'completed':
+            queryset = queryset.filter(Q(date__lt=today) | (Q(date=today) & Q(time__lt=current_time)))
+        elif status == 'today':
+            queryset = queryset.filter(Q(date=today) | Q(time__gte=current_time))
+        elif status == 'upcoming':
+            queryset = queryset.filter(Q(date__gt=today))
+        return queryset.order_by(
+            "date",
+            "time"
+        )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data( **kwargs)
+        context['current_status'] = self.request.GET.get("status", '')
+        return context
 
-@login_required
-def create_reminder(request):
-    if (request.method == "POST"):
-        form = ReminderForm(request.POST)
-        if form.is_valid():
-            reminder = form.save(commit=False)
-            reminder.user = request.user
-            reminder.save()
-            return redirect('home')
-    else: 
-        form = ReminderForm()
-    return render(
-        request,
-       "reminders/create.html",
-        { "form": form }
-    )
+class ReminderCreateView(LoginRequiredMixin, CreateView):
+    model = Reminder
+    form_class = ReminderForm
+    template_name = "reminders/create.html"
+    success_url = reverse_lazy('home')
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
-class ReminderUpdateView(UpdateView, LoginRequiredMixin):
+class ReminderUpdateView(LoginRequiredMixin, UserReminderMixin, UpdateView):
     model = Reminder
     form_class = ReminderForm
     template_name = "reminders/update.html"
@@ -41,14 +54,14 @@ class ReminderUpdateView(UpdateView, LoginRequiredMixin):
     def get_queryset(self):
         return Reminder.objects.filter(user=self.request.user)
 
-class ReminderDeleteView(DeleteView, LoginRequiredMixin):
+class ReminderDeleteView(LoginRequiredMixin, UserReminderMixin, DeleteView):
     model = Reminder
     template_name = "reminders/delete.html"
     success_url = reverse_lazy('home')
     def get_queryset(self):
         return Reminder.objects.filter(user=self.request.user)
     
-class ReminderDetailView(DeleteView, LoginRequiredMixin):
+class ReminderDetailView(LoginRequiredMixin, UserReminderMixin, DetailView ):
     model = Reminder
     template_name = "reminders/detail.html"
     success_url = reverse_lazy("home")

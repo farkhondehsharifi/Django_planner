@@ -1,11 +1,16 @@
 from django.urls import path
 from . import views
-from.views import ReminderUpdateView, ReminderDeleteView, ReminderDetailView
+from.views import ReminderUpdateView, ReminderDeleteView, ReminderDetailView, ReminderCreateView, ReminderListView
 
 urlpatterns = [
-    path("", views.home, name="home"),
-    path("reminders/create/",
-         views.create_reminder,
+    path(
+        "",
+        ReminderListView.as_view(),
+        name="home"
+    ),
+    path(
+        "reminders/create/",
+         ReminderCreateView.as_view(),
          name="create_reminder"
          ),
         path(

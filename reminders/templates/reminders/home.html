@@ -6,6 +6,20 @@
 
         {% block content %}
             <h1>Reminders:</h1>
+            <div>
+                <a href="?" class="btn {% if not current_status %}btn-primary{% else %}btn-outline{% endif%}">
+                    All
+                </a>
+                <a href="?status=today" class="btn {% if not current_status %}btn-primary{% else %}btn-outline{% endif%}">
+                    Today
+                </a>
+                <a href="?status=completed" class="btn {% if not current_status %}btn-primary{% else %}btn-outline{% endif%}">
+                    Completed
+                </a>
+                <a href="?status=upcoming" class="btn {% if not current_status %}btn-primary{% else %}btn-outline{% endif%}">
+                    Upcoming
+                </a>
+            </div>
             {% for reminder in reminders%}
                 <div>
                     <h3>{{ reminder.id }}. <a href="{% url 'reminder_detail' reminder.id %}">{{ reminder.title }}</a></h3>
@@ -17,6 +31,21 @@
             {% empty %}
                 <p> No reminders yet</p>
             {% endfor %}
+
+            {% if is_paginated %}
+                <div class="pagination">
+                    {% for page_num in page_obj.paginator.page_range%}
+                        {% if page_num == page_obj.number %}
+                            <span>
+                                {{page_obj.number}} / {{page_obj.paginator.num_pages}}
+                            </span>
+                        {% else %}
+                            <button><a href="?{% if current_status %}status={{current_status}}&{% endif %}page={{page_num}}">{{page_num}}</a></button>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <br>
             <button><a href="{% url 'create_reminder' %}">Add Reminder</a></button>
         {% endblock %}
 
