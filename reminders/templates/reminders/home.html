@@ -8,13 +8,16 @@
             <h1>Reminders:</h1>
             {% for reminder in reminders%}
                 <div>
-                    <h3>{{ reminder.title }}</h3>
+                    <h3>{{ reminder.id }}. <a href="{% url 'reminder_detail' reminder.id %}">{{ reminder.title }}</a></h3>
                     <p> {{ reminder.date}} {{ reminder.time }}</p>
+                    <button><a href= "{% url 'update_reminder' reminder.id %}">Edit</a></button>
+                    <button><a href= "{% url 'delete_reminder' reminder.id %}">Delete</a></button>
                 </div>
                 <hr>
             {% empty %}
                 <p> No reminders yet</p>
             {% endfor %}
+            <button><a href="{% url 'create_reminder' %}">Add Reminder</a></button>
         {% endblock %}
 
         {% block footer %}
