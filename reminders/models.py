@@ -8,6 +8,7 @@ class Reminder(models.Model):
     time = models.TimeField()
     color = models.CharField(max_length=30)
     description = models.TextField(blank=True)
+    sent = models.BooleanField(default=False)
     
     def __str__(self):
         return self.title
