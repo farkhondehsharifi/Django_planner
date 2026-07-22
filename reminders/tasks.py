@@ -22,6 +22,10 @@ from django.conf import settings
 @shared_task
 def send_reminder_email(reminder_id):
     reminder = Reminder.objects.select_related('user').get(id=reminder_id)
+    if not reminder.user.email:
+        reminder.status=ReminderStatus.FAILED
+        reminder.save(update_fields=['status'])
+        return
     send_mail(
         subject=f"Reminder:{reminder.title}",
         message = f"""

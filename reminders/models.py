@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from .reminder_status import ReminderStatus
-from .tasks import send_reminder_email
 from django.utils import timezone
 from datetime import datetime
 from config.celery import app
@@ -21,6 +20,8 @@ class Reminder(models.Model):
     task_id = models.CharField(max_length=255, null=True)
 
     def schedule(self):
+        from .tasks import send_reminder_email
+
         eta = self.get_datetime()
         if eta <= timezone.now():
             self.status = ReminderStatus.FAILED
